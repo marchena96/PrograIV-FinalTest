@@ -41,3 +41,11 @@ export const createProductSchema = z.object({
 })
 
 export type CreateProductFormValues = z.infer<typeof createProductSchema>
+
+export interface CreateProductPayload {
+  title: string
+  price: number
+  description: string
+  images: string[]
+  categoryId: number
+}

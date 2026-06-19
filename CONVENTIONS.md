@@ -105,3 +105,32 @@ CreateProductFormValues  // inferido del schema
 - [x] `_optimisticStatus` para Optimistic UI
 - [x] Ningún `enum` (compatible con `erasableSyntaxOnly`)
 - [x] Build pasa sin errores
+
+## Fase 3: Capa API del feature `products` ✅
+
+### Prompt utilizado
+Crear funciones Axios para fetchProducts (GET /products con filtros server-side) y createProduct (POST /products).
+
+### Archivos creados/modificados
+
+| Archivo | Acción |
+|---|---|
+| `src/features/products/types/index.ts` | Modificado — se agregó `CreateProductPayload` |
+| `src/features/products/api/index.ts` | Creado — funciones API |
+
+### API de la capa
+
+```ts
+fetchProducts(filters: ProductFilters, pagination: PaginationParams): Promise<Product[]>
+  // GET /products?offset=...&limit=...&title=...&price_min=...&price_max=...
+
+createProduct(payload: CreateProductPayload): Promise<Product>
+  // POST /products  body: { title, price, description, images, categoryId }
+```
+
+### Cumplimiento del requerimiento
+- [x] Filtros se envían como query params (no filtrado local)
+- [x] Paginación server-side con offset/limit
+- [x] `verbatimModuleSyntax` respetado (`import type` para tipos)
+- [x] Tipado estricto, cero `any`
+- [x] Build pasa sin errores
