@@ -5,7 +5,15 @@ import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
 export default defineConfig({
-  plugins: [TanStackRouterVite({ autoCodeSplitting: true }), react(), tailwindcss()],
+  plugins: [
+    TanStackRouterVite({
+      autoCodeSplitting: true,
+      routesDirectory: './src/app/routes',
+      generatedRouteTree: './src/app/routeTree.gen.ts',
+    }),
+    react(),
+    tailwindcss(),
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
