@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import {
   useReactTable,
   getCoreRowModel,
@@ -18,6 +19,15 @@ const columns = [
   }),
   columnHelper.accessor('title', {
     header: 'Title',
+    cell: (info) => (
+      <Link
+        to="/products/$productId"
+        params={{ productId: info.row.original.id.toString() }}
+        className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+      >
+        {info.getValue()}
+      </Link>
+    ),
   }),
   columnHelper.accessor('images', {
     header: 'Image',

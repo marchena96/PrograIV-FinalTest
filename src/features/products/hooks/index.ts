@@ -1,11 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchProducts, createProduct } from '@/features/products/api'
+import { fetchProducts, fetchProductById, createProduct } from '@/features/products/api'
 import type { Product, ProductFilters, PaginationParams } from '@/features/products/types'
 
 export function useProducts(filters: ProductFilters, pagination: PaginationParams) {
   return useQuery({
     queryKey: ['products', filters, pagination],
     queryFn: () => fetchProducts(filters, pagination),
+  })
+}
+
+export function useProduct(id: number) {
+  return useQuery({
+    queryKey: ['products', id],
+    queryFn: () => fetchProductById(id),
+    enabled: id > 0,
   })
 }
 
