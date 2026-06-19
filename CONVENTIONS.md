@@ -105,3 +105,70 @@ CreateProductFormValues  // inferido del schema
 - [x] `_optimisticStatus` para Optimistic UI
 - [x] Ningún `enum` (compatible con `erasableSyntaxOnly`)
 - [x] Build pasa sin errores
+
+## Fase 3: Capa API del feature `products` ✅
+
+### Prompt utilizado
+Crear funciones Axios para fetchProducts (GET /products con filtros server-side) y createProduct (POST /products).
+
+### Archivos creados/modificados
+
+| Archivo | Acción |
+|---|---|
+| `src/features/products/types/index.ts` | Modificado — se agregó `CreateProductPayload` |
+| `src/features/products/api/index.ts` | Creado — funciones API |
+
+### API de la capa
+
+```ts
+fetchProducts(filters: ProductFilters, pagination: PaginationParams): Promise<Product[]>
+  // GET /products?offset=...&limit=...&title=...&price_min=...&price_max=...
+
+createProduct(payload: CreateProductPayload): Promise<Product>
+  // POST /products  body: { title, price, description, images, categoryId }
+```
+
+### Cumplimiento del requerimiento
+- [x] Filtros se envían como query params (no filtrado local)
+- [x] Paginación server-side con offset/limit
+- [x] `verbatimModuleSyntax` respetado (`import type` para tipos)
+- [x] Tipado estricto, cero `any`
+- [x] Build pasa sin errores
+
+## Fase 4: Hooks del feature `products` ✅
+
+### Prompt utilizado
+Crear hooks TanStack Query con useQuery para listar productos (useProducts) y useMutation con Optimistic UI para crear productos (useCreateProduct).
+
+### Archivos creados
+
+| Archivo | Acción |
+|---|---|
+| `src/features/products/hooks/index.ts` | Creado — hooks con TanStack Query |
+
+### API de hooks
+
+```ts
+useProducts(filters: ProductFilters, pagination: PaginationParams)
+  // → UseQueryResult<Product[], Error>
+  // queryKey: ['products', filters, pagination]
+  // Llama a fetchProducts con los mismos filtros y paginación
+
+useCreateProduct()
+  // → UseMutationResult<Product, Error, CreateProductPayload, { previousQueries }>
+  // Optimistic: inserta producto temporal con _optimisticStatus:'saving' en todas las cachés de products
+  // onError: restaura la caché al snapshot anterior
+  // onSettled: invalida todas las queries ['products']
+```
+
+### Flujo Optimistic UI
+1. **`onMutate`**: cancela queries activas, guarda snapshot, agrega `optimisticProduct` (con `id: Date.now()`, `_optimisticStatus: 'saving'`) al inicio de cada caché de products
+2. **`onError`**: restaura cada caché a su snapshot previo
+3. **`onSettled`**: invalida todas las queries `['products']` para refrescar con datos reales
+
+### Cumplimiento del requerimiento
+- [x] `useQuery` con queryKey que incluye filtros + paginación
+- [x] `useMutation` con ciclo completo Optimistic UI (cancel → snapshot → insert → rollback → invalidate)
+- [x] `_optimisticStatus` en producto optimista
+- [x] Cero `any`, tipado estricto
+- [x] Build pasa sin errores
