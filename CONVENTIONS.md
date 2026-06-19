@@ -134,3 +134,41 @@ createProduct(payload: CreateProductPayload): Promise<Product>
 - [x] `verbatimModuleSyntax` respetado (`import type` para tipos)
 - [x] Tipado estricto, cero `any`
 - [x] Build pasa sin errores
+
+## Fase 4: Hooks del feature `products` ✅
+
+### Prompt utilizado
+Crear hooks TanStack Query con useQuery para listar productos (useProducts) y useMutation con Optimistic UI para crear productos (useCreateProduct).
+
+### Archivos creados
+
+| Archivo | Acción |
+|---|---|
+| `src/features/products/hooks/index.ts` | Creado — hooks con TanStack Query |
+
+### API de hooks
+
+```ts
+useProducts(filters: ProductFilters, pagination: PaginationParams)
+  // → UseQueryResult<Product[], Error>
+  // queryKey: ['products', filters, pagination]
+  // Llama a fetchProducts con los mismos filtros y paginación
+
+useCreateProduct()
+  // → UseMutationResult<Product, Error, CreateProductPayload, { previousQueries }>
+  // Optimistic: inserta producto temporal con _optimisticStatus:'saving' en todas las cachés de products
+  // onError: restaura la caché al snapshot anterior
+  // onSettled: invalida todas las queries ['products']
+```
+
+### Flujo Optimistic UI
+1. **`onMutate`**: cancela queries activas, guarda snapshot, agrega `optimisticProduct` (con `id: Date.now()`, `_optimisticStatus: 'saving'`) al inicio de cada caché de products
+2. **`onError`**: restaura cada caché a su snapshot previo
+3. **`onSettled`**: invalida todas las queries `['products']` para refrescar con datos reales
+
+### Cumplimiento del requerimiento
+- [x] `useQuery` con queryKey que incluye filtros + paginación
+- [x] `useMutation` con ciclo completo Optimistic UI (cancel → snapshot → insert → rollback → invalidate)
+- [x] `_optimisticStatus` en producto optimista
+- [x] Cero `any`, tipado estricto
+- [x] Build pasa sin errores
