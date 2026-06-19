@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { ProductFilters } from '@/features/products/types'
 
 interface ProductFilterBarProps {
@@ -11,6 +11,26 @@ export function ProductFilterBar({ filters, onApply, onClear }: ProductFilterBar
   const [title, setTitle] = useState(filters.title ?? '')
   const [priceMin, setPriceMin] = useState(filters.price_min?.toString() ?? '')
   const [priceMax, setPriceMax] = useState(filters.price_max?.toString() ?? '')
+  const isClearing = useRef(false)
+
+  useEffect(() => {
+    if (isClearing.current) {
+      isClearing.current = false
+      return
+    }
+
+    const timer = setTimeout(() => {
+      if (title.length >= 2 || title.length === 0) {
+        onApply({
+          title: title || undefined,
+          price_min: priceMin ? Number(priceMin) : undefined,
+          price_max: priceMax ? Number(priceMax) : undefined,
+        })
+      }
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [title])
 
   function handleApply() {
     onApply({
@@ -21,6 +41,7 @@ export function ProductFilterBar({ filters, onApply, onClear }: ProductFilterBar
   }
 
   function handleClear() {
+    isClearing.current = true
     setTitle('')
     setPriceMin('')
     setPriceMax('')
