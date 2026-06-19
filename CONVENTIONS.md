@@ -172,3 +172,64 @@ useCreateProduct()
 - [x] `_optimisticStatus` en producto optimista
 - [x] Cero `any`, tipado estricto
 - [x] Build pasa sin errores
+
+## Fase 5: UI del feature `products` ✅
+
+### Prompt utilizado
+Crear componentes visuales: ProductFilterBar, ProductTable, ProductCreateForm, ProductsPage.
+
+### Archivos creados
+
+| Archivo | Acción |
+|---|---|
+| `src/features/products/ui/ProductFilterBar.tsx` | Creado — inputs title, price_min/max + Apply/Clear |
+| `src/features/products/ui/ProductTable.tsx` | Creado — TanStack Table v8, columnas: ID, title, image, price, description, category, status |
+| `src/features/products/ui/ProductCreateForm.tsx` | Creado — TanStack Form + Zod Standard Schema + useCreateProduct |
+| `src/features/products/ui/ProductsPage.tsx` | Creado — contenedor: paginación, filtros, modal, loading/error |
+
+### Detalle de componentes
+
+**ProductFilterBar**
+- Props: `filters`, `onApply`, `onClear`
+- `useState` local para campos, sincronización inicial desde `filters`
+- Apply: emite filtros (convierte strings a `number` para price)
+- Clear: resetea inputs locales + llama `onClear()`
+
+**ProductTable**
+- `createColumnHelper<Product>()` con 7 columnas tipadas
+- `id`: `#n` monospace
+- `images`: thumbnail 48×48
+- `price`: `formatPrice` (USD)
+- `description`: `truncateText(60)`
+- `category.id`: `#n` monospace
+- `_optimisticStatus`: badge "Saving…" (yellow) o "Synced" (green)
+- `flexRender` para render headless; `getCoreRowModel`
+
+**ProductCreateForm**
+- `useForm` con `defaultValues` y `validators.onSubmit: createProductSchema`
+- **Zod como esquema Standard Schema** (sin `validatorAdapter` — deprecado en Zod 3.24+)
+- 5 fields: title (text), price (number), description (textarea), imageUrl (url), categoryId (number)
+- On submit: transforma `imageUrl` → `images: [imageUrl]`, llama `mutate` + `onSuccess`
+- Botón Cancel + Create (deshabilitado mientras `isPending`)
+
+**ProductsPage**
+- Estado: `filters` + `pagination` (offset/limit 10) + `isModalOpen`
+- `useProducts(filters, pagination)` conecta Query
+- Estados: loading (Spinner), error (red banner), data (tabla + paginación)
+- Paginación: Previous (deshabilitado si offset=0), Next (deshabilitado si data.length < limit)
+- Modal overlay con `ProductCreateForm`, cierre al cancelar o al crear exitosamente
+
+### Observaciones técnicas
+- **TanStack Form v1 + Zod:** no se necesita `@tanstack/zod-form-adapter`. Zod 3.24+ implementa `StandardSchemaV1` directamente. El schema se pasa como `validators.onSubmit`.
+- **`as CreateProductFormValues`** en `defaultValues` — necesaria porque los valores literales (`1`) son subtipo de `number` pero TypeScript los infiere como `1` literal.
+- **`useState` local en FilterBar:** para evitar refetches en cada keystroke; los filtros se emiten solo al hacer clic en Apply.
+- **Paginación:** no hay total count del API; se estima `hasMore` como `data.length >= limit`.
+
+### Cumplimiento del requerimiento
+- [x] TanStack Table v8 con columnas headless
+- [x] TanStack Form v1 + Zod Standard Schema (sin adapter)
+- [x] Optimistic UI visual (badge Saving…/Synced)
+- [x] Server-side pagination y filtros
+- [x] Loading + Error states
+- [x] Cero `any`, tipado estricto
+- [x] Build pasa sin errores
