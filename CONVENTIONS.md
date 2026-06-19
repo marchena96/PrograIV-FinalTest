@@ -73,3 +73,35 @@ formatPrice(price: number): string          // "$1,234.56"
 getFirstImage(images: string[]): string     // primer URL o placeholder
 truncateText(text: string, max: number): string  // "texto…"
 ```
+
+## Fase 2: Tipos del feature `products` ✅
+
+### Prompt utilizado
+Crear esquemas Zod e interfaces TypeScript para Product, ProductFilters, PaginationParams y CreateProductFormValues.
+
+### Archivos creados
+
+| Archivo | Acción |
+|---|---|
+| `src/features/products/types/index.ts` | Creado — interfaces y schemas de la feature |
+
+### Tipos exportados
+
+```ts
+// Interfaces
+Category          { id: number; name: string; image: string }
+Product           { id; title; price; description; images; category; _optimisticStatus? }
+ProductFilters    { title?; price_min?; price_max? }
+PaginationParams  { offset: number; limit: number }
+
+// Zod schema
+createProductSchema  // title (string.min(1)), price (number.positive), description (string.min(1)), imageUrl (string.url), categoryId (number.int.positive)
+CreateProductFormValues  // inferido del schema
+```
+
+### Cumplimiento del requerimiento
+- [x] Tipado estricto, cero `any`
+- [x] Schema Zod compatible con `@tanstack/zod-form-adapter`
+- [x] `_optimisticStatus` para Optimistic UI
+- [x] Ningún `enum` (compatible con `erasableSyntaxOnly`)
+- [x] Build pasa sin errores
