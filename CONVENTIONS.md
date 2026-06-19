@@ -325,3 +325,88 @@ export { App as default } from './app/App'
 - [x] `src/App.tsx` es solo un re-export (código real en `src/app/`)
 - [x] Cero `any`, tipado estricto
 - [x] Build (Vite + tsc) pasa sin errores
+
+## Fase 7: Zustand Store para UI State ✅
+
+### Prompt utilizado
+Crear un store Zustand para el estado de UI (visibilidad del modal de creación), reemplazando el `useState` local en `ProductsPage`.
+
+### Archivos creados/modificados
+
+| Archivo | Acción |
+|---|---|
+| `src/store/useProductUIStore.ts` | Creado — store: `isCreateModalOpen`, `openCreateModal`, `closeCreateModal` |
+| `src/features/products/ui/ProductsPage.tsx` | Modificado — consume store en vez de `useState` |
+
+### Store
+
+`src/store/useProductUIStore.ts`:
+```ts
+interface ProductUIState {
+  isCreateModalOpen: boolean
+  openCreateModal: () => void
+  closeCreateModal: () => void
+}
+
+export const useProductUIStore = create<ProductUIState>((set) => ({
+  isCreateModalOpen: false,
+  openCreateModal: () => set({ isCreateModalOpen: true }),
+  closeCreateModal: () => set({ isCreateModalOpen: false }),
+}))
+```
+
+### Detalle del cambio en ProductsPage
+
+- Se reemplazó `const [isModalOpen, setIsModalOpen] = useState(false)` por `const { isCreateModalOpen, openCreateModal, closeCreateModal } = useProductUIStore()`
+- Se eliminaron las funciones locales `openModal` / `closeModal`
+- Las referencias en JSX apuntan ahora a las acciones del store
+
+### Observaciones técnicas
+- **Zustand v5** — API `create` funcionando sin cambios respecto a v4
+- **Solo UI state:** el store no contiene ni cachea datos del servidor (eso es competencia de TanStack Query)
+- **Sin middleware:** para un flag booleano no se necesita persistencia ni devtools
+- **Tipado estricto:** interfaz completa, sin `any`
+
+### Cumplimiento del requerimiento
+- [x] Store Zustand creado en `src/store/`
+- [x] Modal visibility gestionado por el store
+- [x] `ProductsPage` consume el store en vez de `useState`
+- [x] Solo UI flags, cero datos de servidor
+- [x] Tipado estricto, cero `any`
+- [x] Build pasa sin errores
+
+## Fase 8: Final Tailwind Styling ✅
+
+### Prompt utilizado
+Aplicar la capa final de estilos Tailwind a todos los componentes: badges, tabla responsive, layout del formulario y página principal.
+
+### Archivos modificados
+
+| Archivo | Cambios |
+|---|---|
+| `src/features/products/ui/ProductFilterBar.tsx` | Inputs `rounded-lg`, labels uppercase, botones con shadow |
+| `src/features/products/ui/ProductTable.tsx` | Zebra striping, sticky header, truncate en descripción |
+| `src/features/products/ui/ProductCreateForm.tsx` | Error styling (`border-red-400`), required asterisks, spinner en submit |
+| `src/features/products/ui/ProductsPage.tsx` | Paginación con iconos + page number, modal con X close + backdrop, header con subtítulo |
+
+### Resumen de mejoras
+
+| Componente | Mejora clave |
+|---|---|
+| `ProductFilterBar` | Inputs redondeados, labels en uppercase, contenedor `rounded-xl` |
+| `ProductTable` | Filas alternadas (`even:bg-gray-50/50`), sticky header, tooltip en descripción |
+| `ProductCreateForm` | Inputs con borde rojo en error, asteriscos en required, spinner animado |
+| `ProductsPage` | Paginación con iconos SVG, modal cierra con X o backdrop click, layout responsive |
+
+### Coherencia de diseño
+- **Bordes:** `rounded-xl` en contenedores, `rounded-lg` en inputs/botones
+- **Inputs:** `border-gray-300`, `focus:ring-blue-500`
+- **Botones primarios:** `bg-blue-600`, `hover:bg-blue-700`, `shadow-sm`
+- **Labels:** `text-sm font-semibold text-gray-700` o `text-xs uppercase tracking-wide`
+
+### Cumplimiento del requerimiento
+- [x] Badges de estado (Synced/Saving) con colores semánticos
+- [x] Tabla responsive con sticky header y zebra striping
+- [x] Formulario con errores visuales y feedback de carga
+- [x] Layout general pulido y coherente
+- [x] Build (`tsc + vite`) pasa sin errores
