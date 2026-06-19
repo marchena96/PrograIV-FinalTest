@@ -36,3 +36,40 @@ Plan arquitectónico global con Vertical Slices + Layered Architecture:
   `@tanstack/zod-form-adapter@0.42.1`
 - `@tailwindcss/vite@4.3.1` plugin nativo de Vite (sin PostCSS)
 - Tailwind v4 sin archivo de configuración — tema definido en CSS con `@theme`
+- Se agregó `"ignoreDeprecations": "6.0"` en tsconfig por deprecación de `baseUrl` en TS 6.0
+
+## Fase 1: Capa Compartida (`shared/`) ✅
+
+### Prompt utilizado
+Construcción de la capa shared: cliente Axios, Spinner, utilidades de formato.
+
+### Archivos modificados/creados
+
+| Archivo | Acción |
+|---|---|
+| `src/shared/api/axiosClient.ts` | Creado — instancia Axios con `baseURL` e interceptor de errores |
+| `src/shared/components/Spinner.tsx` | Creado — SVG spinner con props `size` (sm/md/lg) y aria-label |
+| `src/shared/utils/index.ts` | Creado — `formatPrice`, `getFirstImage`, `truncateText` |
+| `tsconfig.app.json` | Agregado `ignoreDeprecations: "6.0"` |
+| `src/App.tsx` | Corregido — faltaba `export default function App()` |
+
+### Cumplimiento del requerimiento
+- [x] `axiosClient` con URL base, Content-Type e interceptor de errores
+- [x] `Spinner` accesible con `role="status"` y `aria-label`
+- [x] Utilidades puras sin efectos secundarios
+- [x] Tipado estricto (cero `any`)
+- [x] Build pasa sin errores (`tsc -b --noEmit`)
+
+### API de shared exports
+```ts
+// axiosClient
+export default axiosClient  // instancia Axios configurada
+
+// Spinner
+<Spinner size="sm" | "md" | "lg" />
+
+// Utils
+formatPrice(price: number): string          // "$1,234.56"
+getFirstImage(images: string[]): string     // primer URL o placeholder
+truncateText(text: string, max: number): string  // "texto…"
+```
