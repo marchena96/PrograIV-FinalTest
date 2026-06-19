@@ -325,3 +325,52 @@ export { App as default } from './app/App'
 - [x] `src/App.tsx` es solo un re-export (código real en `src/app/`)
 - [x] Cero `any`, tipado estricto
 - [x] Build (Vite + tsc) pasa sin errores
+
+## Fase 7: Zustand Store para UI State ✅
+
+### Prompt utilizado
+Crear un store Zustand para el estado de UI (visibilidad del modal de creación), reemplazando el `useState` local en `ProductsPage`.
+
+### Archivos creados/modificados
+
+| Archivo | Acción |
+|---|---|
+| `src/store/useProductUIStore.ts` | Creado — store: `isCreateModalOpen`, `openCreateModal`, `closeCreateModal` |
+| `src/features/products/ui/ProductsPage.tsx` | Modificado — consume store en vez de `useState` |
+
+### Store
+
+`src/store/useProductUIStore.ts`:
+```ts
+interface ProductUIState {
+  isCreateModalOpen: boolean
+  openCreateModal: () => void
+  closeCreateModal: () => void
+}
+
+export const useProductUIStore = create<ProductUIState>((set) => ({
+  isCreateModalOpen: false,
+  openCreateModal: () => set({ isCreateModalOpen: true }),
+  closeCreateModal: () => set({ isCreateModalOpen: false }),
+}))
+```
+
+### Detalle del cambio en ProductsPage
+
+- Se reemplazó `const [isModalOpen, setIsModalOpen] = useState(false)` por `const { isCreateModalOpen, openCreateModal, closeCreateModal } = useProductUIStore()`
+- Se eliminaron las funciones locales `openModal` / `closeModal`
+- Las referencias en JSX apuntan ahora a las acciones del store
+
+### Observaciones técnicas
+- **Zustand v5** — API `create` funcionando sin cambios respecto a v4
+- **Solo UI state:** el store no contiene ni cachea datos del servidor (eso es competencia de TanStack Query)
+- **Sin middleware:** para un flag booleano no se necesita persistencia ni devtools
+- **Tipado estricto:** interfaz completa, sin `any`
+
+### Cumplimiento del requerimiento
+- [x] Store Zustand creado en `src/store/`
+- [x] Modal visibility gestionado por el store
+- [x] `ProductsPage` consume el store en vez de `useState`
+- [x] Solo UI flags, cero datos de servidor
+- [x] Tipado estricto, cero `any`
+- [x] Build pasa sin errores

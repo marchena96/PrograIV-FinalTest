@@ -4,12 +4,13 @@ import { ProductFilterBar } from './ProductFilterBar'
 import { ProductTable } from './ProductTable'
 import { ProductCreateForm } from './ProductCreateForm'
 import Spinner from '@/shared/components/Spinner'
+import { useProductUIStore } from '@/store/useProductUIStore'
 import type { ProductFilters, PaginationParams } from '@/features/products/types'
 
 export function ProductsPage() {
   const [filters, setFilters] = useState<ProductFilters>({})
   const [pagination, setPagination] = useState<PaginationParams>({ offset: 0, limit: 10 })
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const { isCreateModalOpen, openCreateModal, closeCreateModal } = useProductUIStore()
 
   const { data, isLoading, isError, error } = useProducts(filters, pagination)
 
@@ -31,8 +32,7 @@ export function ProductsPage() {
     setPagination((prev) => ({ ...prev, offset: Math.max(0, prev.offset - prev.limit) }))
   }
 
-  function openModal() { setIsModalOpen(true) }
-  function closeModal() { setIsModalOpen(false) }
+
 
   const hasPrevious = pagination.offset > 0
   const hasMore = data && data.length >= pagination.limit
@@ -42,7 +42,7 @@ export function ProductsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Gestión de Productos</h1>
         <button
-          onClick={openModal}
+          onClick={openCreateModal}
           className="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
         >
           + Nuevo Producto
@@ -94,11 +94,11 @@ export function ProductsPage() {
         </>
       )}
 
-      {isModalOpen && (
+      {isCreateModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
             <h2 className="text-lg font-semibold mb-4">Crear Producto</h2>
-            <ProductCreateForm onSuccess={closeModal} onCancel={closeModal} />
+            <ProductCreateForm onSuccess={closeCreateModal} onCancel={closeCreateModal} />
           </div>
         </div>
       )}
