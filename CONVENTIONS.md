@@ -233,3 +233,95 @@ Crear componentes visuales: ProductFilterBar, ProductTable, ProductCreateForm, P
 - [x] Loading + Error states
 - [x] Cero `any`, tipado estricto
 - [x] Build pasa sin errores
+
+## Fase 6: App Layer + Routing ✅
+
+### Prompt utilizado
+Crear la capa de aplicación con TanStack Router (file-based routing) y QueryClientProvider.
+
+### Archivos creados/modificados
+
+| Archivo | Acción |
+|---|---|
+| `vite.config.ts` | Modificado — agregado `routesDirectory` y `generatedRouteTree` al plugin |
+| `src/app/routes/__root.tsx` | Creado — root layout con `<Outlet />` |
+| `src/app/routes/index.lazy.tsx` | Creado — lazy route `/` → `<ProductsPage />` |
+| `src/app/App.tsx` | Creado — `QueryClientProvider` + `RouterProvider` + `createRouter` |
+| `src/App.tsx` | Modificado — re-exporta `App` desde `src/app/App.tsx` |
+| `src/app/routeTree.gen.ts` | Generado automáticamente por el Vite plugin |
+
+### Estructura resultante
+
+```
+src/app/
+├── App.tsx              ← Punto de entrada: providers + router
+├── routeTree.gen.ts     ← Generado por @tanstack/router-plugin
+└── routes/
+    ├── __root.tsx       ← Root layout (Outlet)
+    └── index.lazy.tsx   ← Ruta principal → ProductsPage
+```
+
+### Flujo de entrada
+
+```
+main.tsx → App (src/App.tsx → re-export desde src/app/App.tsx)
+         → QueryClientProvider (TanStack Query)
+         → RouterProvider (TanStack Router)
+         → __root.tsx (Outlet)
+         → index.lazy.tsx (ProductsPage)
+```
+
+### Detalle de archivos
+
+**`vite.config.ts`** — configuración del plugin:
+```ts
+TanStackRouterVite({
+  autoCodeSplitting: true,
+  routesDirectory: './src/app/routes',
+  generatedRouteTree: './src/app/routeTree.gen.ts',
+})
+```
+
+**`__root.tsx`** — layout raíz sin UI adicional (el header está en ProductsPage):
+```tsx
+export const Route = createRootRoute({
+  component: () => <Outlet />,
+})
+```
+
+**`index.lazy.tsx`** — lazy route (gracias a `autoCodeSplitting: true`):
+```tsx
+export const Route = createLazyFileRoute('/')({
+  component: ProductsPage,
+})
+```
+
+**`app/App.tsx`** — providers + router tipado:
+```tsx
+const queryClient = new QueryClient()
+const router = createRouter({ routeTree })
+
+export function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  )
+}
+```
+
+**`src/App.tsx`** — puente simple:
+```tsx
+export { App as default } from './app/App'
+```
+
+**`routeTree.gen.ts`** — archivo autogenerado, incluido en el repo para que `tsc` funcione offline.
+
+### Cumplimiento del requerimiento
+- [x] File-based routing con `@tanstack/router-plugin`
+- [x] `autoCodeSplitting: true` para lazy loading de rutas
+- [x] `QueryClientProvider` envuelve toda la app
+- [x] Root layout con `<Outlet />` para anidamiento futuro
+- [x] `src/App.tsx` es solo un re-export (código real en `src/app/`)
+- [x] Cero `any`, tipado estricto
+- [x] Build (Vite + tsc) pasa sin errores
