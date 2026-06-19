@@ -35,7 +35,11 @@ const columns = [
   }),
   columnHelper.accessor('description', {
     header: 'Description',
-    cell: (info) => truncateText(info.getValue(), 60),
+    cell: (info) => (
+      <span className="block max-w-xs truncate" title={info.getValue()}>
+        {truncateText(info.getValue(), 60)}
+      </span>
+    ),
   }),
   columnHelper.accessor((row) => row.category.id, {
     id: 'categoryId',
@@ -75,15 +79,15 @@ export function ProductTable({ data }: ProductTableProps) {
   })
 
   return (
-    <div className="overflow-x-auto bg-white rounded-lg shadow-sm border">
+    <div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-200">
       <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+        <thead className="bg-gray-50 sticky top-0 z-10">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
                 >
                   {header.isPlaceholder
                     ? null
@@ -94,10 +98,10 @@ export function ProductTable({ data }: ProductTableProps) {
           ))}
         </thead>
         <tbody className="divide-y divide-gray-200">
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="hover:bg-gray-50 transition-colors">
+          {table.getRowModel().rows.map((row, i) => (
+            <tr key={row.id} className={`${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} hover:bg-blue-50/50 transition-colors`}>
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="px-4 py-3 text-sm text-gray-700">
+                <td key={cell.id} className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
